@@ -1,1 +1,2 @@
-This is my capstone project for DATA 205 at Montgomery College.
+Capstone project propsoed for DATA 205 Spring 
+Topic: Insurance
