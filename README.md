@@ -31,5 +31,3 @@ The data used in this project comes from the **public Appeals and Grievances Rep
 - Compare outcomes across insurance carriers.
 - Identify patterns in emergency vs. non-emergency grievance cases.
 - Provide clear, interactive visualizations to support data-driven insights.
-
-## Repository Structure
