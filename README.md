@@ -25,6 +25,7 @@ The data used in this project comes from the **public Appeals and Grievances Rep
 - **Power BI** – Development of interactive dashboards and visualizations
 - **Excel** – Initial data extraction and cleaning
 - **GitHub** – Version control and project documentation
+- **R-Studio** - Exploratory Data Analysis (EDA) and visualization
 
 ## Project Objectives
 - Analyze trends in adverse decisions, grievances, and complaints from 2021–2025.
