@@ -29,6 +29,7 @@ The data used in this project comes from the **public Appeals and Grievances Rep
 
 ## Project Objectives
 - Analyze trends in adverse decisions, grievances, and complaints from 2021–2025.
-- Compare outcomes across insurance carriers.
-- Identify patterns in emergency vs. non-emergency grievance cases.
+- Compare adverse decisions across services.
+- Compare grievances  across services
+- Identify patterns in complaint's outcome.
 - Provide clear, interactive visualizations to support data-driven insights.
