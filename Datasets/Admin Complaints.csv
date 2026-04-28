@@ -1,0 +1,75 @@
+﻿year,Type of Procedure,carrier code,total, upheld by MIA number,carrier upheld by mia percent, reversed by mia number,carrier reversed by mia percent , modifed by mia number ,carrier modifed by mia percent , carrier reversed itself during investigation number ,carrier reversed itself during investigation percent 
+2021,Air Ambulance,B,2,2,1,0,0,0,0,0,0
+2021,Cosmetic,D,3,0,0,2,0.67,1,0.33,0,5
+2021,Dental Care Services,J,32,10,0.31,4,0.13,1,0.03,17,0.53
+2021,Durable Medical Equipment,I,7,2,0.29,3,0.43,0,0,2,0.29
+2021,Emergency Room Denial,B,2,0,0,0,0,0,0,2,1
+2021,Experimental,D,6,4,0.67,1,0.17,0,0,1,0.17
+2021,Eye Care,L,1,0,0,1,1,0,0,0,0
+2021,In-Patient Rehabilitation Services,G,2,2,1,0,0,0,0,0,0
+2021,"Lab, Imaging, Test Services",E,45,27,0.6,11,0.24,0,0,7,0.16
+2021,Laboratory Services,E,1,0,0,0,0,0,0,1,1
+2021,Mental Health/Substance (Inpatient) Services,C,2,0,0,0,0,0,0,2,1
+2021,Mental Health/Substance (Outpatient) Services,C,8,1,0.13,2,0.25,0,0,5,0.63
+2021,Opioid Use Disorders,F,1,1,1,0,0,0,0,0,0
+2021,PCP Referrals,D,1,0,0,0,0,0,0,1,1
+2021,Pharmacy Benefits,F,1,0,0,0,0,0,0,1,1
+2021,Pharmacy Services/Formulary Issues,F,157,31,0.2,37,0.24,1,0.01,88,0.56
+2021,Physician Services,D,35,9,0.26,6,0.17,2,0.06,17,0.49
+2021,"PT, OT, ST",G,2,1,0.5,1,0.5,0,0,0,0
+2021,TOTAL,,308,90,0.292207792,68,0.220779221,5,0.016233766,144,0.467532468
+2022,Cosmetic,D,3,2,0.67,1,0.33,0,0,0,0
+2022,Dental Care Services,J,31,11,0.35,2,0.06,0,0,18,0.58
+2022,Durable Medical Equipment,I,5,1,0.2,2,0.4,0,0,2,0.4
+2022,Emergency Services,B,1,1,1,0,0,0,0,0,0
+2022,Experimental,D,11,7,0.64,3,0.27,0,0,1,0.09
+2022,Home Care Services,,1,0,0,0,0,0,0,1,1
+2022,In-Patient Rehabilitation Services,G,2,0,0,0,0,0,0,2,1
+2022,"Lab, Imaging, Test Services",E,73,25,0.34,35,0.48,0,0,13,0.18
+2022,"Mental Health/Substance (Inpatient)
+Services",C,3,2,0.67,0,0,0,0,1,0.33
+2022,"Mental Health/Substance (Outpatient)
+Services",C,1,0,0,0,0,0,0,1,1
+2022,Opioid Use Disorders,F,1,0,0,0,0,0,0,1,1
+2022,Out-of-Network Benefits,D,1,1,1,0,0,0,0,0,0
+2022,Pharmacy Services/Formulary Issues,F,145,25,0.17,46,0.32,0,0,74,0.51
+2022,Physician Services,D,36,17,0.47,8,0.22,0,0,11,0.31
+2022,"PT, OT, ST",G,3,0,0,0,0,0,0,3,1
+2022,TOTAL,,317,92,0.29022082,97,0.305993691,0,0,128,0.403785489
+2023,Acupuncture,D,1,0,0,0,0,0,0,1,1
+2023,Air Ambulance,B,1,1,1,0,0,0,0,0,0
+2023,Cosmetic,D,1,1,1,0,0,0,0,0,0
+2023,Dental Care Services,J,27,13,0.48,3,0.11,0,0,11,0.41
+2023,Durable Medical Equipment,I,9,6,0.67,1,0.11,0,0,2,0.22
+2023,Experimental,D,11,7,0.64,3,0.27,0,0,1,0.09
+2023,Home Care Services,K,1,0,0,0,0,0,0,1,1
+2023,Hospitalization,A,1,0,0,0,0,0,0,1,1
+2023,In-Patient Rehabilitation Services,G,2,1,0.5,1,0.5,0,0,0,0
+2023,"Lab, Imaging, Test Services",E,89,34,0.38,42,0.47,1,0.01,12,0.13
+2023,"Mental Health/Substance (Inpatient)
+Services",C,1,0,0,0,0,0,0,1,1
+2023,"Mental Health/Substance (Outpatient)
+Services",C,4,0,0,0,0,0,0,4,1
+2023,Opioid Use Disorders,F,2,0,0,0,0,0,0,2,1
+2023,Out Patient Services,,2,1,0.5,1,0.5,0,0,0,0
+2023,Pharmacy Services/Formulary Issues,F,136,25,0.18,33,0.24,0,0,78,0.57
+2023,Physician Services,D,28,7,0.25,7,0.25,1,0.04,13,0.46
+2023,"PT, OT, ST",G,1,0,0,0,0,0,0,1,1
+2023,TOTAL,,317,96,0.302839117,91,0.287066246,2,0.006309148,128,0.403785489
+2024,Air Ambulance,B,4,4,1,0,0,0,0,0,0
+2024,Cosmetic,D,5,1,0.2,0,0,0,0,4,0.8
+2024,Denial of Hospital Days,A,3,2,0.67,1,0.33,0,0,0,0
+2024,Dental Care Services,J,36,11,0.31,0,0,3,0.08,22,0.61
+2024,Durable Medical Equipment,I,10,4,0.4,2,0.2,1,0.1,3,0.3
+2024,Experimental,D,7,5,0.71,2,0.29,0,0,0,0
+2024,Eye Care,L,1,0,0,0,0,0,0,1,1
+2024,In-Patient Rehabilitation Services,G,2,1,0.5,0,0,0,0,1,0.5
+2024,"Lab, Imaging, Test Services",E,87,30,0.34,46,0.53,0,0,11,0.13
+2024,Mental Health/Substance (Inpatient) Services,C,7,2,0.29,4,0.57,0,0,1,0.14
+2024,Mental Health/Substance (Outpatient) Services,C,11,2,0.18,2,0.18,2,0.18,5,0.45
+2024,Opioid Use Disorders,F,3,0,0,0,0,0,0,3,1
+2024,Out Patient Services,G,9,3,0.33,4,0.44,0,0,2,0.22
+2024,Pharmacy Services/Formulary Issues,F,151,48,0.32,30,0.2,0,0,72,0.48
+2024,Physician Services,D,58,18,0.31,14,0.24,8,0.14,18,0.31
+2024,Skilled Nursing Facility Care Services,H,1,0,0,0,0,0,0,1,1
+2024,TOTAL,,395,131,0.33164557,105,0.265822785,14,0.035443038,144,0.364556962
