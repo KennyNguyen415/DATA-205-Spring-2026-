@@ -34,5 +34,5 @@ The data used in this project comes from the **public Appeals and Grievances Rep
 - Identify patterns in complaint's outcome.
 - Provide clear, interactive visualizations to support data-driven insights.
 
-- ##Outcome
+## Outcome
 - I created interactive Power BI dashboards that tell a story about adverse decision and grievance trends, highlighting service outliers where consumers are most likely to experience issues, as well as the success rate of complaints filed by consumers. 
