@@ -1,0 +1,667 @@
+---
+title: "Appeals and Greivances EDA"
+author: "Kenny Nguyen"
+format: ipynb
+---
+
+## Importing Libraries
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+
+```
+
+## Importing Datasets
+
+```{r}
+mia <- read.csv("MIA Appeals and Grievances.csv")
+```
+
+```{r}
+admin <- read.csv('Admin Complaints.csv')
+```
+
+## Looking at dataset attributes
+
+```{r}
+str(mia)
+```
+
+```{r}
+colSums(is.na(mia))
+```
+
+```{r}
+summary(mia)
+```
+
+```{r}
+summary(admin)
+```
+
+## Fixing column names
+
+```{r}
+names(mia) <- tolower(names(mia))
+names(mia) <- gsub(' ',"_",names(mia))
+names(mia) <- gsub("\\.", "_",names(mia))
+```
+
+```{r}
+names(admin) <- tolower(names(admin))
+names(admin) <- gsub(' ',"_",names(admin))
+names(admin) <- gsub("\\.", "_",names(admin))
+```
+
+```{r}
+admin_totals_only <- admin |>
+  filter(type_of_procedure == "Total")
+```
+
+```{r}
+colnames(admin)
+```
+
+```{r}
+colnames(mia)
+```
+
+## Creating a dataset that contains only total amounts
+
+```{r}
+totals_only <- mia |>
+  filter(company_name == "Total")
+```
+
+```{r}
+str(admin)
+```
+
+# Adverse Decisions
+
+## Creating a line graph to see the change in adverse decisions over the years
+
+```{r}
+adp1 <- totals_only |>
+  select(year,adverse_decisions_company_total)|>
+  ggplot(aes(x = year, y = adverse_decisions_company_total)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Total Amount of Adverse Decisions Over Time",
+  caption = "Source: Maryland Insurance Administration",
+  y = "Total Adverse Decisions",
+x = "Years")
+
+adp1
+```
+
+Throughout the years adverse decisions are increasing but the increase seemed to slow down from 2023 to 2024 meaning claims are being less rejected.
+
+```{r}
+adverse_growth <- totals_only |>
+  select(year,adverse_decisions_company_total) |>
+  arrange(year)|>
+  mutate(
+    pct_change = (adverse_decisions_company_total - lag(adverse_decisions_company_total)) / lag(adverse_decisions_company_total) * 100
+  )
+
+adverse_growth
+```
+
+## Creating dataset to collect the top ten companies with the most adverse decisions
+
+```{r}
+top_companies_ad <- mia |>
+  filter(`company_name` != "Total") |>
+  group_by(`company_name`) |>
+  summarise(total = sum(`adverse_decisions_company_total`, na.rm = TRUE)) |>
+  arrange(desc(total)) |>
+  head(10)
+```
+
+```{r}
+ggplot(top_companies_ad, aes(x = reorder(`company_name`, total), y = total)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(
+    title = "Top 10 Companies with Adverse Decisions 2021-2024",
+    caption = 'Source: Maryland Insurance Administration',
+    x = 'Company Name',
+    y = 'Total'
+  ) +
+  theme(plot.title = element_text(size = 10, face = "bold"))
+```
+
+The top CareFirst BluChoice leads all companies with 104,612 adverse decisions from 2021-2024
+
+The top 3 insurers (CareFirst BluChoice, CIGNA, UnitedHealthcare) account for the majority of all adverse decisions statewide
+
+## Creating a dataset that has all the totals of the adverse services
+
+```{r}
+totals_adverse_services <- totals_only |>
+  select(
+    year,
+    adverse_decisions_inpatient_hospital_services_number,
+    adverse_decisions_emergency_room_services_number,
+    adverse_decisions_mental_health_services_number,
+   adverse_decisions_physician_services_number,
+  adverse_decisions_laboratory__radiology_services_number,
+    adverse_decisions_pharmacy_services_number,
+    adverse_decisions_pt__ot__st_services__incl_inpat_rehab__number_,
+    adverse_decisions_skilled_nurse_facility_sub_acute_nursing_home_number,
+   adverse_decisions_durable_medical_equipment_services_number,
+    adverse_decisions_dental_number,
+    adverse_decisions_home_health_services_number,
+    adverse_decisions_obesity__ivf__podiatry__hearing_and_vision_number_
+  )
+```
+
+```{r}
+totals_adverse_services_long <- totals_adverse_services |>
+  pivot_longer(
+    cols = -year,
+    names_to = "service",
+    values_to = "count"
+  ) |>
+  mutate(
+    service = service |>
+      str_remove("adverse_decisions") |>
+      str_remove("_number_?$") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  )
+
+```
+
+## Calculating the percent change in adverse decision per service by years
+
+```{r}
+adverse_service_growth <- totals_adverse_services_long |>
+  arrange(service, year) |>
+  group_by(service) |>
+  mutate(
+    pct_change = (count - lag(count)) / lag(count) * 100
+  ) |>
+  ungroup() 
+
+
+adverse_service_growth
+```
+
+## Creating a heat map that shows the percent change in adverse decisions
+
+```{r}
+ggplot(adverse_service_growth, aes(x = year, y = service, fill = pct_change)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = paste0(round(pct_change, 1), "%")), size = 3) +
+  scale_fill_gradient2(
+    name = "% Change"
+  ) +
+  labs(
+    title = "Percent Change in Adverse Decisions by Service",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 8)
+  )
+```
+
+Emergency Room Services saw a 1,020% spike in 2022 going from 10 to 112
+
+Mental Health Services surged 149.7% in 2024
+
+## Creating facet plots of the change in adverse decisions by service
+
+```{r}
+ggplot(totals_adverse_services_long, aes(x = year, y = count)) +
+  geom_line( color = "darkgreen") +
+  geom_point() +
+  facet_wrap(~ service, scales = "free_y", ncol = 3) +
+  labs(
+    title = "Adverse Decisions by Service Over Time (2021-2024)",
+    x = "Year",
+    y = "Count",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 5, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7)
+  )
+```
+
+Pharmacy Services had the highest absolute volume and a consistent upward trend, making it the largest driver of adverse decisions by service, possibly due to burnt out workers and high quotas
+
+Laboratory/Radiology & Emergency Services is the only category showing a decline in 2024, contrasting with the broader upward trend across services
+
+# Grievances
+
+## Creating a line graph to see the change in grievances over the years
+
+```{r}
+grp1 <- totals_only |>
+  select(year,grievances_filed_company_total)|>
+  ggplot(aes(x = year, y = grievances_filed_company_total)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Total Amount of Grievances Over Time",
+    caption = "Source: Maryland Insurance Administration",
+    y = " Total Grievances"
+  )
+grp1
+```
+
+Total grievances grew 43% from 8,073 in 2021 to 11,526 in 2024, indicating consumers are increasingly challenging insurance decisions.
+
+## Calculating percent change in grievances by years
+
+```{r}
+grievance_growth <- totals_only |>
+  select(year,grievances_filed_company_total) |>
+  arrange(year) |>
+  mutate(
+    pct_change = (grievances_filed_company_total - lag(grievances_filed_company_total)) / lag(grievances_filed_company_total) * 100
+  )
+
+grievance_growth
+```
+
+## Creating dataset to collect the top ten companies with the most grievances
+
+```{r}
+top_companies_gr <- mia |>
+  filter(`company_name` != "Total") |>
+  group_by(`company_name`) |>
+  summarise(total = sum(`grievances_filed_company_total`, na.rm = TRUE)) |>
+  arrange(desc(total)) |>
+  head(10)
+  
+  
+```
+
+```{r}
+  ggplot(top_companies_gr,aes(x = reorder(`company_name`, total), y = total)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Top 10 Companies with Grievances 2021-2024",
+       x = 'Company Name',
+       y= 'Total',
+       caption = "Source: Maryland Insurance Administration"
+       ) 
+```
+
+CareFirst BlueChoice ranks 1st in both adverse and grievances
+
+Guardian Life ranks 5th for grievances yet 10th for adverse
+
+## Creating a dataset that has the totals for grievances services
+
+```{r}
+totals_grievances_services <- totals_only |>
+  select(
+    year,
+    grievance_inpatient_hospital_services_number,
+    grievance_emergency_room_services_number,
+    grievance_mental_health_services_number,
+    grievance_physician_services_number,
+    grievance_laboratory__radiology_services_number,
+    grievance_pharmacy_services_number,
+    grievance_pt__ot__st_services__incl_inpat_rehab__number_,
+    grievance_skilled_nurse_facility_sub_acute_nursing_home_number,
+    grievance_durable_medical_equipment_services_number,
+    grievance_dental_number,
+    grievance_home_health_services_number,
+    grievance_obesity__ivf__podiatry__hearing_and_vision_number_
+  )
+```
+
+```{r}
+totals_grievances_services_long <- totals_grievances_services |>
+  pivot_longer(
+    cols = -year,
+    names_to = "service",
+    values_to = "count"
+  ) |>
+  mutate(
+    service = service |>
+      str_remove("grievance") |>
+      str_remove("_number_?$") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  )
+
+```
+
+## Calculating the percent change in grievances per service by years
+
+```{r}
+grievance_service_growth <- totals_grievances_services_long |>
+  arrange(service, year) |>
+  group_by(service) |>
+  mutate(
+    pct_change = (count - lag(count)) / lag(count) * 100
+  ) |>
+  ungroup() |>
+    mutate(
+    service = service |>
+      str_remove("grievance") |>
+      str_remove("_number_?$") |>
+      str_replace_all("_", " ") |>
+      str_to_title() 
+    )
+
+grievance_service_growth
+```
+
+```{r}
+ggplot(grievance_service_growth, aes(x = year, y = service, fill = pct_change)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = paste0(round(pct_change, 1), "%")), size = 3) +
+  scale_fill_gradient2(
+    name = "% Change"
+  ) +
+  labs(
+    title = "Percent Change in Grievances by Service",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.y = element_text(size = 8)
+  )
+```
+
+Mental Health Services grievances surged 217.4% in 2024 — the largest jump of any service category and a key area of concern. S
+
+killed Nursing Facility grievances jumped 483.3% in 2023, then grew another 17.1% in 2024, indicating a persistent and growing problem.
+
+## Creating facet plots of the change in grievances by service
+
+```{r}
+ggplot(totals_grievances_services_long, aes(x = year, y = count)) +
+  geom_line( color = "darkgreen") +
+  geom_point() +
+  facet_wrap(~ service, scales = "free_y", ncol = 3) +
+  labs(
+    title = "Grievances by Service Over Time (2021-2024)",
+    x = "Year",
+    y = "Count",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 5, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 7)
+  )
+```
+
+Pharmacy Services grievances are consistently high and rising
+
+Mental Health Services shows a dramatic acceleration in 2024 after years of relative stability — the most significant shift in this dataset.
+
+## Creating bar chart with the totals amount of grievances outcomes from 2021 - 2024
+
+```{r}
+outcome <- totals_only |>
+select(grievances_upheld_number,grievances_overturned_number,grievances_modified_number)|>
+  pivot_longer(everything(), names_to = "outcome", values_to = "count") |>
+mutate(outcome = outcome |>
+      str_remove("grievances_") |>
+      str_remove("_number") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+)
+```
+
+```{r}
+ggplot(outcome,aes(x = outcome, y = count, fill = outcome)) +
+  geom_bar(stat = "identity") +
+labs(
+  title = "Grievances Outcome 2021-2024",
+  caption = "Source: Maryland Insurance Administration"
+)
+```
+
+## Creating a line graph showing the trends of grievances outcome
+
+```{r}
+gr_outcome <- totals_only|>
+select(year,grievances_overturned_number,grievances_upheld_number,grievances_modified_number)|>
+   group_by(year) |>
+  pivot_longer(-year, names_to = "outcome", values_to = "count") |>
+  mutate(
+    outcome = outcome |>
+      str_remove("grievances_") |>
+      str_remove("_number") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  ) 
+ 
+```
+
+```{r}
+ ggplot(gr_outcome,aes(x = year, y = count, color = outcome)) +
+  geom_line(size = 1) +
+  geom_point()+
+  labs(
+    title = "Grievances Outcome"
+  )
+```
+
+Overturned outcomes are the most common and continue to grow, meaning insurers are increasingly siding with consumers
+
+# Hospital Length Of Stay
+
+## Creating dataset that has total amounts for length of stay grievances
+
+```{r}
+mia_los<- totals_only |>
+select(year,grievances_upheld_number_for_hospital_los,grievances_overturned_number_for_hospital_los,grievances_modified_number_for_hospital_los)|>  group_by(year) |>
+  pivot_longer(-year, names_to = "outcome", values_to = "count") |>
+  mutate(
+    outcome = outcome |>
+      str_remove("grievances_") |>
+      str_remove("_number") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  ) 
+  
+```
+
+## Creating line graph for grievances outcome for hospital length of stay
+
+```{r}
+ggplot(mia_los,aes(x = year, y = count, color = outcome)) +
+  geom_line(size = 1) +
+  geom_point() +
+  labs(
+    title = "Grievances Outcome For Hospital Length of Stay",
+    y = "Number of Cases",
+    color = "Outcome",
+    caption = "Source:Maryland Insurance Administration"
+  )
+```
+
+Upheld outcomes for hospital length-of-stay grievances surged in 2024 after a dip in 2022.
+
+Overturned cases declined in 2024 after peaking in 2023 — consumers are having less success challenging hospital stay denials in recent years.
+
+# Emergency Cases Resolution Hours
+
+## Creating dataset that has emergency cases resolution hours totals
+
+```{r}
+emer_res <- totals_only|>
+  select(year, emergency_cases___resolution_hours_1_st_quarter_,emergency_cases___resolution_hours_2nd_quarter_,emergency_cases___resolution_hours_3rd__quarter_,emergency_cases___resolution_hours_4th_quarter_) 
+  
+```
+
+## Pivoting dataset into long format for efficient graphing
+
+```{r}
+emer_res_long <- emer_res |>
+  pivot_longer(
+    cols = -year,
+    names_to = "quarters",
+    values_to = "resolution_hours"
+  )|>
+  mutate(
+    quarters = quarters |>
+      str_remove("emergency_cases___resolution_hours_") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  )
+
+```
+
+## Creating bar plot showing amount of hours it take to resolve an emergency grievance
+
+```{r}
+ggplot(emer_res_long, aes(x = year, y = resolution_hours, fill = quarters)) +
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge(width = 0.9)) +
+  labs(
+    title = "Quarterly Emergency Resolution Hours By Year",
+    x = "Year",
+    y = "Resolution Hours",
+    fill = "Quarter",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal()
+```
+
+Emergency resolution hours have dropped significantly since 2021, with Q1 2024 averaging less than 400 hours compared to 660.1 in Q1 2021. Q1 consistently records the highest resolution hours each year , likely reflecting post-holiday backlogs and early-year staffing constraints.
+
+# Non-Emergency Cases Resolution Days
+
+## Creating dataset that has non-emergency cases resolution hours totals
+
+```{r}
+non_emer_res <- totals_only|>
+  select(year, non_emergency_cases___resolution_days_1st_quarter,non_emergency_cases___resolution_days_2nd_quarter,non_emergency_cases___resolution_days_3rd_quarter,non_emergency_cases___resolution_days_4th_quarter) 
+```
+
+```{r}
+non_emer_res_long <- non_emer_res |>
+  pivot_longer(
+    cols = -year,
+    names_to = "quarters",
+    values_to = "resolution_days"
+  )|>
+  mutate(
+    quarters = quarters |>
+      str_remove("non_emergency_cases___resolution_days_") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  )
+```
+
+## Creating bar plot showing amount of days it take to resolve an non-emergency grievance
+
+```{r}
+ggplot(non_emer_res_long, aes(x = year, y = resolution_days, fill = quarters)) +
+  geom_bar(stat = "identity", color = "black",
+           position = position_dodge(width = 0.9)) +
+  labs(
+    title = "Quarterly Non-Emergency Resolution Days By Year",
+    x = "Year",
+    y = "Resolution Days",
+    fill = "Quarter",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal()
+
+```
+
+Non-emergency resolution days peaked in Q4 2022 at 861.8 and have been declining since, reflecting improved processing efficiency across all quarters.
+
+All 2024 quarters are well below 2022 peaks, suggesting improvements in handling non-urgent cases.
+
+# MIA Outcome
+
+## Creating a chart that has numbers of mia outcomes for complaints
+
+```{r}
+mia_dec<- totals_only |>
+  select(year,carrier_upheld_by_mia_number,carrier_modified_by_mia_number,carrier_reversed_by_mia_number)|>
+  pivot_longer(-year, names_to = "outcome", values_to = "count") |>
+  mutate(
+    outcome = outcome |>
+      str_remove("grievances_") |>
+      str_remove("_number") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  ) 
+```
+
+## Plotting line graph showing MIA's decision for complaints
+
+```{r}
+  ggplot(mia_dec,aes(x = year, y = count, color = outcome)) +
+  geom_line(size = 1) +
+  geom_point() +
+  labs(
+    title = "MIA Decisions Over Time",
+    y = "Number of Cases",
+    color = "Outcome",
+    caption = "Source: Maryland Insurance Administration"
+  )
+
+```
+
+Carrier Upheld by MIA decisions rose sharply in 2024, indicating the MIA is increasingly ruling in favor of insurers across all case types.
+
+Carrier Reversed by MIA cases are also growing, showing the agency remains active in holding insurers accountable in certain circumstances.
+
+## Creating dataset that has data for MIA's outcome for complaints by procedure
+
+```{r}
+admin_clean <- admin |>
+  filter(type_of_procedure != "TOTAL") |>
+  pivot_longer(
+    cols = c(
+      upheld_by_mia_number,
+      reversed_by_mia_number,
+      modifed_by_mia_number,
+      carrier_reversed_itself_during_investigation_number
+    ),
+    names_to = "outcome",
+    values_to = "count"
+  ) |>
+  mutate(
+    outcome = outcome |>
+      str_remove("_number") |>
+      str_replace_all("_", " ") |>
+      str_to_title()
+  ) |>
+  group_by(type_of_procedure) |>
+  filter(sum(count, na.rm = TRUE) >= 10) |> 
+  ungroup()
+  
+```
+
+## Creating facet plots that shows MIA's appeal decisions
+
+```{r}
+ggplot(admin_clean,aes(x = type_of_procedure, y = count, fill = outcome)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  facet_wrap(~ year, ncol = 2) +
+  labs(
+    title = "MIA Appeal Decisions by Procedure Type (2021-2024)",
+    x = "Type of Procedure",
+    y = "Number of Decisions",
+    fill = "Decision Type",
+    caption = "Source: Maryland Insurance Administration"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+```
+
+Pharmacy/Formulary Issues and Lab/Imaging and Test generate the most MIA appeal activity each year, making them the highest-friction service categories.
+
+High volumes of Carrier Reversed Itself During Investigation suggest insurers frequently back down when they are being investigated
